@@ -8,6 +8,7 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -44,4 +45,25 @@ func BuildAddPayload(calcsvcAddA string, calcsvcAddB string) (*calcsvc.AddPayloa
 		B: b,
 	}
 	return payload, nil
+}
+
+// BuildMultiplyPayload builds the payload for the calcsvc multiply endpoint
+// from CLI flags.
+func BuildMultiplyPayload(calcsvcMultiplyBody string) (*calcsvc.MultiplyPayload, error) {
+	var err error
+	var body MultiplyRequestBody
+	{
+		err = json.Unmarshal([]byte(calcsvcMultiplyBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, example of valid JSON:\n%s", "'{\n      \"a\": 3219793201326175278,\n      \"b\": 8803302123552712831\n   }'")
+		}
+	}
+	if err != nil {
+		return nil, err
+	}
+	v := &calcsvc.MultiplyPayload{
+		A: body.A,
+		B: body.B,
+	}
+	return v, nil
 }

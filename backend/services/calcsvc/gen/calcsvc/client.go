@@ -15,13 +15,15 @@ import (
 
 // Client is the "calcsvc" service client.
 type Client struct {
-	AddEndpoint goa.Endpoint
+	AddEndpoint      goa.Endpoint
+	MultiplyEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "calcsvc" service client given the endpoints.
-func NewClient(add goa.Endpoint) *Client {
+func NewClient(add, multiply goa.Endpoint) *Client {
 	return &Client{
-		AddEndpoint: add,
+		AddEndpoint:      add,
+		MultiplyEndpoint: multiply,
 	}
 }
 
@@ -29,6 +31,16 @@ func NewClient(add goa.Endpoint) *Client {
 func (c *Client) Add(ctx context.Context, p *AddPayload) (res int, err error) {
 	var ires interface{}
 	ires, err = c.AddEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(int), nil
+}
+
+// Multiply calls the "multiply" endpoint of the "calcsvc" service.
+func (c *Client) Multiply(ctx context.Context, p *MultiplyPayload) (res int, err error) {
+	var ires interface{}
+	ires, err = c.MultiplyEndpoint(ctx, p)
 	if err != nil {
 		return
 	}

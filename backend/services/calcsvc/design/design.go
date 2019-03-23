@@ -51,6 +51,22 @@ var _ = Service("calcsvc", func() {
 			Response(StatusOK)
 		})
 	})
+
+	Method("multiply", func() {
+
+		Payload(func() {
+			Attribute("a", Int, "Multiplicand")
+			Attribute("b", Int, "Multiplier")
+			Required("a", "b")
+		})
+
+		Result(Int)
+
+		HTTP(func() {
+			POST("/v1/multiply")
+			Response(StatusOK)
+		})
+	})
 })
 
 var _ = Service("openapi", func() {

@@ -18,8 +18,9 @@ import (
 
 // Server lists the calcsvc service endpoint HTTP handlers.
 type Server struct {
-	Mounts []*MountPoint
-	Add    http.Handler
+	Mounts   []*MountPoint
+	Add      http.Handler
+	Multiply http.Handler
 }
 
 // ErrorNamer is an interface implemented by generated error structs that
@@ -50,8 +51,10 @@ func New(
 	return &Server{
 		Mounts: []*MountPoint{
 			{"Add", "GET", "/calcsvc/v1/add/{a}/{b}"},
+			{"Multiply", "POST", "/calcsvc/v1/multiply"},
 		},
-		Add: NewAddHandler(e.Add, mux, dec, enc, eh),
+		Add:      NewAddHandler(e.Add, mux, dec, enc, eh),
+		Multiply: NewMultiplyHandler(e.Multiply, mux, dec, enc, eh),
 	}
 }
 
@@ -61,11 +64,13 @@ func (s *Server) Service() string { return "calcsvc" }
 // Use wraps the server handlers with the given middleware.
 func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Add = m(s.Add)
+	s.Multiply = m(s.Multiply)
 }
 
 // Mount configures the mux to serve the calcsvc endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
 	MountAddHandler(mux, h.Add)
+	MountMultiplyHandler(mux, h.Multiply)
 }
 
 // MountAddHandler configures the mux to serve the "calcsvc" service "add"
@@ -97,6 +102,58 @@ func NewAddHandler(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "add")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "calcsvc")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				eh(ctx, w, err)
+			}
+			return
+		}
+
+		res, err := endpoint(ctx, payload)
+
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				eh(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			eh(ctx, w, err)
+		}
+	})
+}
+
+// MountMultiplyHandler configures the mux to serve the "calcsvc" service
+// "multiply" endpoint.
+func MountMultiplyHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := h.(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/calcsvc/v1/multiply", f)
+}
+
+// NewMultiplyHandler creates a HTTP handler which loads the HTTP request and
+// calls the "calcsvc" service "multiply" endpoint.
+func NewMultiplyHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	dec func(*http.Request) goahttp.Decoder,
+	enc func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	eh func(context.Context, http.ResponseWriter, error),
+) http.Handler {
+	var (
+		decodeRequest  = DecodeMultiplyRequest(mux, dec)
+		encodeResponse = EncodeMultiplyResponse(enc)
+		encodeError    = goahttp.ErrorEncoder(enc)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "multiply")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "calcsvc")
 		payload, err := decodeRequest(r)
 		if err != nil {

@@ -23,13 +23,13 @@ import (
 //    command (subcommand1|subcommand2|...)
 //
 func UsageCommands() string {
-	return `calcsvc add
+	return `calcsvc (add|multiply)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` calcsvc add --a 5952269320165453119 --b 1828520165265779840` + "\n" +
+	return os.Args[0] + ` calcsvc add --a 3793862871819669726 --b 8399553735696626949` + "\n" +
 		""
 }
 
@@ -48,9 +48,13 @@ func ParseEndpoint(
 		calcsvcAddFlags = flag.NewFlagSet("add", flag.ExitOnError)
 		calcsvcAddAFlag = calcsvcAddFlags.String("a", "REQUIRED", "Left operand")
 		calcsvcAddBFlag = calcsvcAddFlags.String("b", "REQUIRED", "Right operand")
+
+		calcsvcMultiplyFlags    = flag.NewFlagSet("multiply", flag.ExitOnError)
+		calcsvcMultiplyBodyFlag = calcsvcMultiplyFlags.String("body", "REQUIRED", "")
 	)
 	calcsvcFlags.Usage = calcsvcUsage
 	calcsvcAddFlags.Usage = calcsvcAddUsage
+	calcsvcMultiplyFlags.Usage = calcsvcMultiplyUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -89,6 +93,9 @@ func ParseEndpoint(
 			case "add":
 				epf = calcsvcAddFlags
 
+			case "multiply":
+				epf = calcsvcMultiplyFlags
+
 			}
 
 		}
@@ -117,6 +124,9 @@ func ParseEndpoint(
 			case "add":
 				endpoint = c.Add()
 				data, err = calcsvcc.BuildAddPayload(*calcsvcAddAFlag, *calcsvcAddBFlag)
+			case "multiply":
+				endpoint = c.Multiply()
+				data, err = calcsvcc.BuildMultiplyPayload(*calcsvcMultiplyBodyFlag)
 			}
 		}
 	}
@@ -135,6 +145,7 @@ Usage:
 
 COMMAND:
     add: Add implements add.
+    multiply: Multiply implements multiply.
 
 Additional help:
     %s calcsvc COMMAND --help
@@ -148,6 +159,20 @@ Add implements add.
     -b INT: Right operand
 
 Example:
-    `+os.Args[0]+` calcsvc add --a 5952269320165453119 --b 1828520165265779840
+    `+os.Args[0]+` calcsvc add --a 3793862871819669726 --b 8399553735696626949
+`, os.Args[0])
+}
+
+func calcsvcMultiplyUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] calcsvc multiply -body JSON
+
+Multiply implements multiply.
+    -body JSON: 
+
+Example:
+    `+os.Args[0]+` calcsvc multiply --body '{
+      "a": 3219793201326175278,
+      "b": 8803302123552712831
+   }'
 `, os.Args[0])
 }

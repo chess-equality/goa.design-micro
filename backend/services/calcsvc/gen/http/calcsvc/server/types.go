@@ -9,7 +9,17 @@ package server
 
 import (
 	calcsvc "goa.design-micro/backend/services/calcsvc/gen/calcsvc"
+	goa "goa.design/goa"
 )
+
+// MultiplyRequestBody is the type of the "calcsvc" service "multiply" endpoint
+// HTTP request body.
+type MultiplyRequestBody struct {
+	// Multiplicand
+	A *int `form:"a,omitempty" json:"a,omitempty" xml:"a,omitempty"`
+	// Multiplier
+	B *int `form:"b,omitempty" json:"b,omitempty" xml:"b,omitempty"`
+}
 
 // NewAddPayload builds a calcsvc service add endpoint payload.
 func NewAddPayload(a int, b int) *calcsvc.AddPayload {
@@ -17,4 +27,25 @@ func NewAddPayload(a int, b int) *calcsvc.AddPayload {
 		A: a,
 		B: b,
 	}
+}
+
+// NewMultiplyPayload builds a calcsvc service multiply endpoint payload.
+func NewMultiplyPayload(body *MultiplyRequestBody) *calcsvc.MultiplyPayload {
+	v := &calcsvc.MultiplyPayload{
+		A: *body.A,
+		B: *body.B,
+	}
+	return v
+}
+
+// ValidateMultiplyRequestBody runs the validations defined on
+// MultiplyRequestBody
+func ValidateMultiplyRequestBody(body *MultiplyRequestBody) (err error) {
+	if body.A == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("a", "body"))
+	}
+	if body.B == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("b", "body"))
+	}
+	return
 }

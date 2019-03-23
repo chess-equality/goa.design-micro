@@ -25,3 +25,11 @@ func (s *calcsvcsrvc) Add(ctx context.Context, p *calcsvc.AddPayload) (res int, 
 	// return
 	return p.A + p.B, nil
 }
+
+// Add implements add.
+// Add returns the sum of attributes a and b of p.
+func (s *calcsvcsrvc) Multiply(ctx context.Context, p *calcsvc.MultiplyPayload) (res int, err error) {
+	s.logger.Printf("##### From logger: %s", "calcsvc.multiply")
+	// return
+	return p.A * p.B, nil
+}

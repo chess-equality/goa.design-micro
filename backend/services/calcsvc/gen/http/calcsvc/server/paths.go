@@ -15,3 +15,8 @@ import (
 func AddCalcsvcPath(a int, b int) string {
 	return fmt.Sprintf("/calcsvc/v1/add/%v/%v", a, b)
 }
+
+// MultiplyCalcsvcPath returns the URL path to the calcsvc service multiply HTTP endpoint.
+func MultiplyCalcsvcPath() string {
+	return "/calcsvc/v1/multiply"
+}

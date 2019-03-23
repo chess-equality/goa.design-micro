@@ -9,6 +9,7 @@ package server
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -59,6 +60,43 @@ func DecodeAddRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Dec
 			return nil, err
 		}
 		payload := NewAddPayload(a, b)
+
+		return payload, nil
+	}
+}
+
+// EncodeMultiplyResponse returns an encoder for responses returned by the
+// calcsvc multiply endpoint.
+func EncodeMultiplyResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res := v.(int)
+		enc := encoder(ctx, w)
+		body := res
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeMultiplyRequest returns a decoder for requests sent to the calcsvc
+// multiply endpoint.
+func DecodeMultiplyRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			body MultiplyRequestBody
+			err  error
+		)
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if err == io.EOF {
+				return nil, goa.MissingPayloadError()
+			}
+			return nil, goa.DecodePayloadError(err.Error())
+		}
+		err = ValidateMultiplyRequestBody(&body)
+		if err != nil {
+			return nil, err
+		}
+		payload := NewMultiplyPayload(&body)
 
 		return payload, nil
 	}
