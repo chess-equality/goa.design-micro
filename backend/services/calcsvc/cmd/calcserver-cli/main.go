@@ -33,7 +33,7 @@ func main() {
 		if addr == "" {
 			switch *hostF {
 			case "development":
-				addr = "http://localhost:8080"
+				addr = "http://localhost:8082"
 			default:
 				fmt.Fprintf(os.Stderr, "invalid host argument: %q (valid hosts: development)", *hostF)
 				os.Exit(1)
@@ -98,7 +98,7 @@ Usage:
     %s [-host HOST][-url URL][-timeout SECONDS][-verbose|-v] SERVICE ENDPOINT [flags]
 
     -host HOST:  server host (development). valid values: development
-    -url URL:    specify service URL overriding host URL (http://localhost:8080)
+    -url URL:    specify service URL overriding host URL (http://localhost:8082)
     -timeout:    maximum number of seconds to wait for response (30)
     -verbose|-v: print request and response details (false)
 

@@ -3,7 +3,7 @@ info:
   title: Calculator Service
   description: HTTP service for adding numbers, a goa teaser
   version: ""
-host: localhost:8080
+host: localhost:8082
 consumes:
 - application/json
 - application/xml
@@ -13,18 +13,7 @@ produces:
 - application/xml
 - application/gob
 paths:
-  /swagger.json:
-    get:
-      summary: Download ../../gen/http/openapi.json
-      operationId: openapi#/swagger.json
-      responses:
-        "200":
-          description: File downloaded
-          schema:
-            type: file
-      schemes:
-      - http
-  /v1/add/{a}/{b}:
+  /calcsvc/v1/add/{a}/{b}:
     get:
       tags:
       - calcsvc
@@ -47,5 +36,16 @@ paths:
           schema:
             type: integer
             format: int64
+      schemes:
+      - http
+  /swagger.json:
+    get:
+      summary: Download ../../gen/http/openapi.json
+      operationId: openapi#/swagger.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
       schemes:
       - http

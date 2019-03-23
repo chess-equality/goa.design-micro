@@ -21,7 +21,7 @@ func NewCalcsvc(logger *log.Logger) calcsvc.Service {
 // Add implements add.
 // Add returns the sum of attributes a and b of p.
 func (s *calcsvcsrvc) Add(ctx context.Context, p *calcsvc.AddPayload) (res int, err error) {
-	s.logger.Print("calcsvc.add")
+	s.logger.Printf("##### From logger: %s", "calcsvc.add")
 	// return
 	return p.A + p.B, nil
 }

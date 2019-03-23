@@ -8,17 +8,25 @@ var _ = API("calc", func() {
 	Description("HTTP service for adding numbers, a goa teaser")
 	Server("calcserver", func() {
 		Host("development", func() {
-			URI("http://localhost:8080")
-			URI("grpc://localhost:8081")
+			URI("http://localhost:8082")
+			URI("grpc://localhost:8083")
 		})
 	})
 })
 
 // Service describes a service
 var _ = Service("calcsvc", func() {
+
 	Description("The Calculator Service performs operations on numbers")
+
+	// HTTP transport properties.
+	HTTP(func() {
+		Path("/calcsvc")
+	})
+
 	// Method describes a service method (endpoint)
 	Method("add", func() {
+
 		// Payload describes the method payload
 		// Here the payload is an object that consists of two fields
 		Payload(func() {
@@ -28,9 +36,11 @@ var _ = Service("calcsvc", func() {
 			// Both attributes must be provided when invoking "add"
 			Required("a", "b")
 		})
+
 		// Result describes the method result
 		// Here the result is a simple integer value
 		Result(Int)
+
 		// HTTP describes the HTTP transport mapping
 		HTTP(func() {
 			// Requests to the service consist of HTTP GET requests
