@@ -6,7 +6,7 @@ import . "goa.design/goa/dsl"
 var _ = API("calc", func() {
 	Title("Calculator Service")
 	Description("HTTP service for adding numbers, a goa teaser")
-	Server("calcsvc", func() {
+	Server("calcserver", func() {
 		Host("development", func() {
 			URI("http://localhost:8080")
 			URI("grpc://localhost:8081")
@@ -16,7 +16,7 @@ var _ = API("calc", func() {
 
 // Service describes a service
 var _ = Service("calcsvc", func() {
-	Description("The calc service performs operations on numbers")
+	Description("The Calculator Service performs operations on numbers")
 	// Method describes a service method (endpoint)
 	Method("add", func() {
 		// Payload describes the method payload
@@ -35,7 +35,7 @@ var _ = Service("calcsvc", func() {
 		HTTP(func() {
 			// Requests to the service consist of HTTP GET requests
 			// The payload fields are encoded as path parameters
-			GET("/add/{a}/{b}")
+			GET("/v1/add/{a}/{b}")
 			// Responses use a "200 OK" HTTP status
 			// The result is encoded in the response body
 			Response(StatusOK)

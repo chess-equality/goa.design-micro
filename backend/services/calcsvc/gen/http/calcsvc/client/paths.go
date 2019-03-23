@@ -13,5 +13,5 @@ import (
 
 // AddCalcsvcPath returns the URL path to the calcsvc service add HTTP endpoint.
 func AddCalcsvcPath(a int, b int) string {
-	return fmt.Sprintf("/add/%v/%v", a, b)
+	return fmt.Sprintf("/v1/add/%v/%v", a, b)
 }
